@@ -2,7 +2,7 @@ import pygame, sys
 import time
 from pygame.locals import *
 from random import randint
-
+from end import cheh
 clock = pygame.time.Clock()
 
 ecran = (720,480)
@@ -49,13 +49,13 @@ class Vaisseau:
         
     def draw(self) :
         if self.direction == "left":
-            v_sprite = pygame.transform.scale(pygame.image.load('left.png'), (20,20))
+            v_sprite = pygame.transform.scale(pygame.image.load('images/left.png'), (20,20))
         if self.direction == "right":
-            v_sprite = pygame.transform.scale(pygame.image.load('right.png'), (20,20))
+            v_sprite = pygame.transform.scale(pygame.image.load('images/right.png'), (20,20))
         if self.direction == "up":
-            v_sprite = pygame.transform.scale(pygame.image.load('up.png'), (20,20))
+            v_sprite = pygame.transform.scale(pygame.image.load('images/up.png'), (20,20))
         if self.direction == "down":
-            v_sprite = pygame.transform.scale(pygame.image.load('down.png'), (20,20))
+            v_sprite = pygame.transform.scale(pygame.image.load('images/down.png'), (20,20))
         fenetre.blit(v_sprite, (self.x, self.y))
         
     def collision(self):
@@ -108,20 +108,33 @@ class Outils:
         fenetre.fill([0,0,0])
         
     def fenetre_fin(self):
-        while True:
-            keys=pygame.key.get_pressed()
+        for i in range(1000):
+            if self.win == True :
+                fin = self.font.render("you win", 1, (255,255,0))
+                fenetre.blit(fin, (280, 480//2))
+            if self.win == False :
+                fin = self.font2.render("you lose", 1, (255,255,0))
+                fenetre.blit(fin, (280, 480//2))
+                
+        
+            keys=pygame.key.get_pressed() 
             if keys[K_LEFT]:
+               print("e")
+            if keys[K_RIGHT]:
+               print("b")
+            if keys[K_UP]:
+               print("n")
+            if keys[K_DOWN]:
                print("w")
-            else :
-                if self.win == True :
-                    fin = self.font.render("you win", 1, (255,255,0))
-                    fenetre.blit(fin, (280, 480//2))
-                if self.win == False :
-                    fin = self.font2.render("you lose", 1, (255,255,0))
-                    fenetre.blit(fin, (280, 480//2))
-                pygame.display.flip()
-                clock.tick(FPS)
-                fenetre.fill([0,0,0])
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.display.quit()
+                    sys.exit()    
+            pygame.display.flip()    
+            clock.tick(FPS)
+            
+        
 player = Vaisseau()
 liste_ennemis = []
 liste_gouttes = []
@@ -170,11 +183,11 @@ while True :
             
     for e in liste_ennemis:
         if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
-            overlay.win = False
+            win = False
+            font = pygame.font.SysFont("arial", 32)
             overlay.clear_fenetre()
-            overlay.fenetre_fin()
-
             
+      
     for g in liste_gouttes :  
         if g.alive == False :
             liste_gouttes.remove(g)

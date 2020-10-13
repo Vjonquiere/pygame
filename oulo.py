@@ -2,7 +2,8 @@ import pygame, sys
 import time
 from pygame.locals import *
 from random import randint
-from end import cheh
+import abcd
+import variables
 clock = pygame.time.Clock()
 
 ecran = (720,480)
@@ -95,115 +96,81 @@ class Outils:
     def __init__(self):
         self.font = pygame.font.SysFont("arial", 32)
         self.font2 = pygame.font.SysFont("impact", 64)
-        self.win = None
         
     def chrono(self):
-        real_time = round(time.time() - chrono, 2)  
+        real_time = round(time.time() - variables.chronometre, 2)  
         label = self.font.render(str(real_time), 1, (255,255,0))
         fenetre.blit(label, (660, 0))
-        
-    def clear_fenetre(self):
-        liste_ennemis.clear()
-        liste_gouttes.clear()
+            
+    
+variables.chronometre = time.time()
+def real_game():
+
+    player = Vaisseau()
+    variables.liste_ennemis = []
+    variables.liste_gouttes = []
+    overlay = Outils()
+    for k in range(nb_gouttes):
+        variables.liste_gouttes.append(Goutte(10+k*ecran[0]//nb_gouttes))
+    while True :
         fenetre.fill([0,0,0])
         
-    def fenetre_fin(self):
-        for i in range(1000):
-            if self.win == True :
-                fin = self.font.render("you win", 1, (255,255,0))
-                fenetre.blit(fin, (280, 480//2))
-            if self.win == False :
-                fin = self.font2.render("you lose", 1, (255,255,0))
-                fenetre.blit(fin, (280, 480//2))
+        overlay.chrono()
+        
+        for g in variables.liste_gouttes:
+            g.move()
+            g.draw()
+            
+        for e in variables.liste_ennemis:
+            e.move()
+            e.draw()
+     
+        player.draw()
+        player.collision()
+        
+        
+        keys=pygame.key.get_pressed() 
+        if keys[K_LEFT]:
+           player.x -= 5
+           player.direction = "left"
+        if keys[K_RIGHT]:
+           player.x += 5
+           player.direction = "right"
+        if keys[K_UP]:
+           player.y -= 5
+           player.direction = "up"
+        if keys[K_DOWN]:
+           player.y += 5
+           player.direction = "down"
+
+        for g in variables.liste_gouttes:
+            if (player.x-g.x)**2 + (player.y-g.y)**2 < (player.taille + g.taille)**2:
+                g.alive = False
+                variables.liste_ennemis.append(Ennemi())
                 
-        
-            keys=pygame.key.get_pressed() 
-            if keys[K_LEFT]:
-               print("e")
-            if keys[K_RIGHT]:
-               print("b")
-            if keys[K_UP]:
-               print("n")
-            if keys[K_DOWN]:
-               print("w")
+        for e in variables.liste_ennemis:
+            if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
+                variables.win = False
+                abcd.test()
+          
+        for g in variables.liste_gouttes :  
+            if g.alive == False :
+                variables.liste_gouttes.remove(g)
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.display.quit()
-                    sys.exit()    
-            pygame.display.flip()    
-            clock.tick(FPS)
+        
+        if len(variables.liste_gouttes) == 0 :
+            variables.win = True
+            end = time.time()
+            print(round(end - variables.chronometre, 2))
+            abcd.test()
             
         
-player = Vaisseau()
-liste_ennemis = []
-liste_gouttes = []
-overlay = Outils()
-
-for k in range(nb_gouttes):
-    liste_gouttes.append(Goutte(10+k*ecran[0]//nb_gouttes))
-
-chrono = time.time()
-
-while True :
-    fenetre.fill([0,0,0])
-    
-    overlay.chrono()
-    
-    for g in liste_gouttes:
-        g.move()
-        g.draw()
-        
-    for e in liste_ennemis:
-        e.move()
-        e.draw()
- 
-    player.draw()
-    player.collision()
-    
-    
-    keys=pygame.key.get_pressed() 
-    if keys[K_LEFT]:
-       player.x -= 5
-       player.direction = "left"
-    if keys[K_RIGHT]:
-       player.x += 5
-       player.direction = "right"
-    if keys[K_UP]:
-       player.y -= 5
-       player.direction = "up"
-    if keys[K_DOWN]:
-       player.y += 5
-       player.direction = "down"
-
-    for g in liste_gouttes:
-        if (player.x-g.x)**2 + (player.y-g.y)**2 < (player.taille + g.taille)**2:
-            g.alive = False
-            liste_ennemis.append(Ennemi())
-            
-    for e in liste_ennemis:
-        if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
-            win = False
-            font = pygame.font.SysFont("arial", 32)
-            overlay.clear_fenetre()
-            
-      
-    for g in liste_gouttes :  
-        if g.alive == False :
-            liste_gouttes.remove(g)
-
-    
-    if len(liste_gouttes) == 0 :
-        pygame.display.quit()
-        end = time.time()
-        print(round(end - chrono, 2))
-        sys.exit()
-    
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.display.quit()
-            sys.exit()
-            
-           
-    pygame.display.flip()    
-    clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                sys.exit()
+                
+               
+        pygame.display.flip()    
+        clock.tick(FPS)
+real_game()

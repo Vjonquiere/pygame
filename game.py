@@ -1,8 +1,6 @@
-import pygame, sys
-import time
+import pygame, sys, time
 from pygame.locals import *
 from random import randint
-import abcd
 import variables
 clock = pygame.time.Clock()
 
@@ -101,21 +99,23 @@ class Outils:
         real_time = round(time.time() - variables.chronometre, 2)  
         label = self.font.render(str(real_time), 1, (255,255,0))
         fenetre.blit(label, (660, 0))
-            
+        
+    def freeze_time(self):
+        real_time = round(variables.end_time - variables.chronometre, 2)  
+        label = self.font2.render("time : " + str(real_time), 1, (255,255,0))
+        fenetre.blit(label, (240, 300))
     
-variables.chronometre = time.time()
 def real_game():
-
+    variables.chronometre = time.time()
     player = Vaisseau()
     variables.liste_ennemis = []
     variables.liste_gouttes = []
-    overlay = Outils()
+    variables.overlay = Outils()
     for k in range(nb_gouttes):
         variables.liste_gouttes.append(Goutte(10+k*ecran[0]//nb_gouttes))
     while True :
         fenetre.fill([0,0,0])
-        
-        overlay.chrono()
+        variables.overlay.chrono()
         
         for g in variables.liste_gouttes:
             g.move()
@@ -151,7 +151,7 @@ def real_game():
         for e in variables.liste_ennemis:
             if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
                 variables.win = False
-                abcd.test()
+                end_game()
           
         for g in variables.liste_gouttes :  
             if g.alive == False :
@@ -162,7 +162,7 @@ def real_game():
             variables.win = True
             end = time.time()
             print(round(end - variables.chronometre, 2))
-            abcd.test()
+            end_game()
             
         
         for event in pygame.event.get():
@@ -173,4 +173,39 @@ def real_game():
                
         pygame.display.flip()    
         clock.tick(FPS)
-real_game()
+        
+def end_game():
+    variables.liste_ennemis.clear()
+    variables.liste_gouttes.clear()
+    variables.end_time = time.time()
+    while True :
+        font = pygame.font.SysFont("arial", 48)
+        font7 = pygame.font.Font('ConcertOne-Regular.ttf', 25)
+        back = pygame.transform.scale(pygame.image.load('back.jpg'), (720,480))
+        fenetre.blit(back, (0, 0))
+        replay_message = font7.render("appuyer sur 'espace' pour rejouer", 1, (255,255,0))
+        fenetre.blit(replay_message, (175, 400))         
+        if variables.win == False:
+            lose_message = font.render("you lose", 1, (255,255,0))
+            fenetre.blit(lose_message, (270, 100))
+            trophy = pygame.transform.scale(pygame.image.load('icons8-sad-64.png'), (75,75))
+            fenetre.blit(trophy, (310, 175))
+            variables.overlay.freeze_time()
+        if variables.win == True:
+            lose_message = font.render("you win", 1, (255,255,0))
+            fenetre.blit(lose_message, (270, 100))
+            trophy = pygame.transform.scale(pygame.image.load('icons8-trophy-64.png'), (75,75))
+            fenetre.blit(trophy, (310, 175))
+            variables.overlay.freeze_time()
+            
+        keys=pygame.key.get_pressed() 
+        if keys[K_SPACE]:
+               real_game()
+               
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                sys.exit()
+                              
+        pygame.display.flip()    
+        clock.tick(FPS)

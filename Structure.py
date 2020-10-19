@@ -2,4 +2,5 @@ import variables
 import game
 
 
-game.real_game()
+def run_game():
+    game.real_game()

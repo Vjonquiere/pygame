@@ -230,3 +230,4 @@ def end_game():
 
         pygame.display.flip()
         clock.tick(FPS)
+

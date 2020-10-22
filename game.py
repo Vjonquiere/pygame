@@ -91,8 +91,7 @@ class Ennemi:
 
 class Outils:
     def __init__(self):
-        self.font = pygame.font.SysFont("arial", 32)
-        self.font2 = pygame.font.SysFont("impact", 64)
+        self.font = pygame.font.Font('ConcertOne-Regular.ttf', 25)
 
     def chrono(self):
         real_time = round(time.time() - variables.chronometre, 2)
@@ -101,20 +100,22 @@ class Outils:
 
     def freeze_time(self):
         real_time = round(variables.end_time - variables.chronometre, 2)
-        label = self.font2.render("time : " + str(real_time), 1, (255,255,0))
+        label = self.font.render("time : " + str(real_time), 1, (255,255,0))
         fenetre.blit(label, (240, 300))
-class End_game():
-    def __init__(self):
-        self.win = variables.win
+        
     
-    def win_status_display(self):
+def end_game_display():
+    variables.liste_ennemis.clear()
+    variables.liste_gouttes.clear()
+
+    while True:
+        font7 = pygame.font.Font('ConcertOne-Regular.ttf', 25)
         replay_message = font7.render("appuyer sur 'espace' pour rejouer", 1, (255,255,0))
         fenetre.blit(replay_message, (175, 400))
-        font7 = pygame.font.Font('ConcertOne-Regular.ttf', 25)
         back = pygame.transform.scale(pygame.image.load('back.jpg'), (720,480))
         fenetre.blit(back, (0, 0))
         variables.overlay.freeze_time()
-        if self.win :
+        if variables.win :
             message = font7.render("you win", 1, (255,255,0))
             fenetre.blit(message, (270, 100))
             icon = pygame.transform.scale(pygame.image.load('icons8-trophy-64.png'), (75,75))
@@ -125,6 +126,17 @@ class End_game():
             icon = pygame.transform.scale(pygame.image.load('icons8-sad-64.png'), (75,75))
             fenetre.blit(icon, (310, 175))
             
+        keys=pygame.key.get_pressed()
+        if keys[K_SPACE]:
+               real_game()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.display.quit()
+                sys.exit()
+
+        pygame.display.flip()
+        clock.tick(FPS)
 
 def real_game():
     variables.chronometre = time.time()
@@ -172,7 +184,8 @@ def real_game():
         for e in variables.liste_ennemis:
             if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
                 variables.win = False
-                end_game()
+                variables.end_time = time.time()
+                end_game_display()
 
         for g in variables.liste_gouttes :
             if g.alive == False :
@@ -180,10 +193,11 @@ def real_game():
 
 
         if len(variables.liste_gouttes) == 0 :
+            variables.end_time = time.time()
             variables.win = True
             end = time.time()
             print(round(end - variables.chronometre, 2))
-            end_game()
+            end_game_display()
 
 
         for event in pygame.event.get():
@@ -207,13 +221,13 @@ def end_game():
         replay_message = font7.render("appuyer sur 'espace' pour rejouer", 1, (255,255,0))
         fenetre.blit(replay_message, (175, 400))
         if variables.win == False:
-            lose_message = font.render("you lose", 1, (255,255,0))
+            lose_message = font7.render("you lose", 1, (255,255,0))
             fenetre.blit(lose_message, (270, 100))
             icon = pygame.transform.scale(pygame.image.load('icons8-sad-64.png'), (75,75))
             fenetre.blit(icon, (310, 175))
             variables.overlay.freeze_time()
         if variables.win == True:
-            lose_message = font.render("you win", 1, (255,255,0))
+            lose_message = font7.render("you win", 1, (255,255,0))
             fenetre.blit(lose_message, (270, 100))
             icon = pygame.transform.scale(pygame.image.load('icons8-trophy-64.png'), (75,75))
             fenetre.blit(icon, (310, 175))

@@ -108,7 +108,7 @@ class Outils:
     
     def end_game(self):
         variables.liste_ennemis.clear()
-        variables.liste_gouttes.clear()
+        variables.liste_objectifs.clear()
 
         while True:
             back = pygame.transform.scale(pygame.image.load('back.jpg'), (720,480))
@@ -135,21 +135,35 @@ class Outils:
             variables.overlay.routine_pygame()
 
 
+def collision_objectif(player):
+    for g in variables.liste_objectifs:
+        if (player.x-g.x)**2 + (player.y-g.y)**2 < (player.taille + g.taille)**2:
+            g.alive = False
+            variables.liste_ennemis.append(Ennemi())
+                
+def collision_ennemi(player):
+    for e in variables.liste_ennemis:
+        if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
+            variables.win = False
+            variables.end_time = time.time()
+            variables.overlay.end_game()
+                
 def real_game():
     variables.chronometre = time.time()
     player = Vaisseau()
     variables.liste_ennemis = []
-    variables.liste_gouttes = []
+    variables.liste_objectifs = []
     variables.overlay = Outils()
     
-    for k in range(variables.nb_gouttes):
-        variables.liste_gouttes.append(Goutte(10+k*variables.ecran[0]//variables.nb_gouttes))
-        
+    for k in range(variables.nb_objectifs):
+        variables.liste_objectifs.append(Goutte(10+k*variables.ecran[0]//variables.nb_objectifs))
+    if variables.nb_player == 2:
+        player2 = Vaisseau()
     while True :
         variables.fenetre.fill([0,0,0])
         variables.overlay.chrono()
 
-        for g in variables.liste_gouttes:
+        for g in variables.liste_objectifs:
             g.move()
             g.draw()
 
@@ -159,8 +173,27 @@ def real_game():
 
         player.draw()
         player.collision()
-
-
+        player2.draw()
+        player2.collision()
+        collision_objectif(player)
+        collision_objectif(player2)
+        collision_ennemi(player)
+        collision_ennemi(player2)
+        if variables.nb_player == 2:
+            keys=pygame.key.get_pressed()
+            if keys[K_q]:
+               player2.x -= 5
+               player2.direction = "left"
+            if keys[K_d]:
+               player2.x += 5
+               player2.direction = "right"
+            if keys[K_z]:
+               player2.y -= 5
+               player2.direction = "up"
+            if keys[K_s]:
+               player2.y += 5
+               player2.direction = "down"
+               
         keys=pygame.key.get_pressed()
         if keys[K_LEFT]:
            player.x -= 5
@@ -175,23 +208,16 @@ def real_game():
            player.y += 5
            player.direction = "down"
 
-        for g in variables.liste_gouttes:
-            if (player.x-g.x)**2 + (player.y-g.y)**2 < (player.taille + g.taille)**2:
-                g.alive = False
-                variables.liste_ennemis.append(Ennemi())
 
-        for e in variables.liste_ennemis:
-            if (player.x-e.x)**2 + (player.y-e.y)**2 < (player.taille + e.taille)**2:
-                variables.win = False
-                variables.end_time = time.time()
-                variables.overlay.end_game()
+        
 
-        for g in variables.liste_gouttes :
+
+        for g in variables.liste_objectifs :
             if g.alive == False :
-                variables.liste_gouttes.remove(g)
+                variables.liste_objectifs.remove(g)
 
 
-        if len(variables.liste_gouttes) == 0 :
+        if len(variables.liste_objectifs) == 0 :
             variables.end_time = time.time()
             variables.win = True
             end = time.time()

@@ -1,20 +1,23 @@
 from tkinter import *
 import variables
 import game
-import pyglet, os
+import pyglet, os, time
 
 pyglet.font.add_file('ConcertOne-Regular.ttf')
 
-variables.errors = []
-
-class MyFirstGUI:
+class GUI:
     
     def __init__(self, master):
         self.master = master
         self.master.title("Galaxy Wars")
-        self.master.geometry('500x300')
+        self.master.geometry('700x350')
+        self.master.maxsize(700, 350)
+        self.master.minsize(700, 350)
         self.color_back = "#0F4C81"
         self.master.configure(background = self.color_back)
+        self.master.columnconfigure(1,pad = 10,minsize= 500)
+        self.master.rowconfigure(1,weight=0, minsize=100)
+  
         
         ##### txt attributs ##############################################################################################################################################################################################################
         ##### magic command : background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background  ###
@@ -28,8 +31,6 @@ class MyFirstGUI:
         self.label = Label(self.master, text="Welcome to Galaxy War", font=(self.font, 25), background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background,width=20, height=2)
         self.label.grid(pady=10, column = 1, row = 1)
 
-        self.close_button = Button(self.master,background = self.color_back, text="Close", command=master.quit, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background )
-        self.close_button.grid(pady=10, column = 1, row = 4)
         
         self.goutte_champs_label = Label(self.master, text="please enter an objective :",font=(self.font, 18), background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background, pady=10)
         self.goutte_champs_label.grid(pady=5, column = 1, row = 2)
@@ -37,7 +38,7 @@ class MyFirstGUI:
         self.max_objectifs = 100
         self.nb_objectifs = IntVar()
         self.nb_objectifs_champs = Entry(master, textvariable=self.nb_objectifs, background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, width=5)
-        self.nb_objectifs_champs.grid(pady=10, column = 2, row = 2)
+        self.nb_objectifs_champs.grid(pady=(25,0) , column = 2, row = 2)
 
         self.player_champs_label = Label(self.master, text="please enter a number player :",font=(self.font, 18),  background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background,pady=10)
         self.player_champs_label.grid(pady=10, padx = 2, column = 1, row = 3)
@@ -45,53 +46,61 @@ class MyFirstGUI:
         self.max_player = 2
         self.nb_player = IntVar()
         self.nb_player_champs = Entry(master, textvariable=self.nb_player,background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, width=5)
-        self.nb_player_champs.grid(padx=10, column = 2, row = 3)
+        self.nb_player_champs.grid(column = 2, row = 3,pady=(25,0))
         
-        self.greet_button = Button(master, text="Play", command=self.onClick, background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background, height=2, width=7)
-        self.greet_button.grid(pady=10, column = 2, row = 4)
-  
+        self.greet_button = Button(master, text="Play", command=self.onClickPlay, background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground=self.foreground, activebackground=self.highlightbackground, activeforeground=self.background, height=2, width=7)
+        self.greet_button.grid(pady=(25,0), column = 2, row = 4)
         
-    def onClick(self):
+        self.error = ""
+       
+    def onClickPlay(self):
+        
+        # checking if input are INT
         try:
             a = int(self.nb_objectifs_champs.get())
-            variables.valide = True
+            variables.objectif_valide = True
         except:
-            variables.valide = False
-            self.error_message("Ball number must be an number !")
+            variables.objectif_valide = False
             
         try:
             n = int(self.nb_player_champs.get())
-            variables.valide = True
+            variables.player_valide = True
         except:
-            variables.valide = False
-            self.error_message("You can't play with no player !")
+            variables.player_valide = False
             
-        if variables.valide and a != 0:
-            if a<= self.max_objectifs:
-                if n != 0:
-                    if n <= self.max_player:
-                        print("hello")
-                        print(a)
-                        variables.nb_player = n
-                        variables.nb_objectifs = a
-                        game.launch_game()
+        # All requirements to play 
+        if variables.objectif_valide :
+            if a != 0:
+                if a<= self.max_objectifs:
+                    if variables.player_valide :
+                        if n != 0:
+                            if n <= self.max_player:
+                                variables.nb_player = n
+                                variables.nb_objectifs = a
+                                game.launch_game()
+                            else:
+                                self.error_message("2 players max")
+                        else:
+                            self.error_message("You need a player to play")
                     else:
-                        self.error_mes.grid_remove()
-                        self.error_message("2 players max")
+                        self.error_message("You can't play with no player !")
                 else:
-                    self.error_message("You need a player to play")
+                    self.error_message("You must play with a possible ojective") 
             else:
-               self.error_message("You must play with a possible ojective") 
+                self.error_message("You can't play with 0 ball")
         else:
-            self.error_message("You can't play with 0 ball")
+            print("hr")
+            self.error_message("Ball number must be an number !")
             
     def error_message(self, error):
+        if self.error != "":
+            self.error_mes.grid_remove()
         self.error = error
-        self.error_mes = Label(self.master, text=self.error)
-        variables.errors.append(self.error_mes)
-        variables.errors.grid(column=2, row= 5)
-        
-        
+        self.error_mes = Label(self.master, text=self.error, font=(self.font, 12), background = self.color_back, highlightbackground=self.highlightbackground, relief=self.relief, foreground="#7e1818", activebackground=self.highlightbackground, activeforeground=self.background,width=20, height=2)
+        self.error_mes.grid(column=1, row= 5)
+
+
+ 
 root = Tk()
-my_gui = MyFirstGUI(root)
+my_gui = GUI(root)
 root.mainloop()

@@ -84,7 +84,8 @@ class Outils:
     def __init__(self):
         self.font = pygame.font.Font('ConcertOne-Regular.ttf', 25)
         self.font1 = pygame.font.Font('ConcertOne-Regular.ttf', 50)
-    
+        self.replay_message = self.font.render("appuyer sur 'espace' pour rejouer", 1, (255,255,0))
+        self.quit_message = self.font.render("appuyer sur 'm' pour revenir au menu", 1, (255,255,0))
         
     def chrono(self):
         real_time = round(time.time() - variables.chronometre, 2)
@@ -113,8 +114,8 @@ class Outils:
         while True:
             back = pygame.transform.scale(pygame.image.load('back.jpg'), (720,480))
             variables.fenetre.blit(back, (0, 0))
-            replay_message = self.font.render("appuyer sur 'espace' pour rejouer", 1, (255,255,0))
-            variables.fenetre.blit(replay_message, (175, 400)) 
+            variables.fenetre.blit(self.quit_message, (145, 435))
+            variables.fenetre.blit(self.replay_message, (175, 400)) 
             variables.overlay.freeze_time()
             if variables.win :
                 message = self.font1.render("You Win", 1, (255,255,0))
@@ -130,7 +131,7 @@ class Outils:
             keys=pygame.key.get_pressed()
             if keys[K_SPACE]:
                    real_game()
-            if keys[K_p]:
+            if keys[K_m]:
                    pygame.quit()
             variables.overlay.routine_pygame()
 
@@ -173,12 +174,15 @@ def real_game():
 
         player.draw()
         player.collision()
-        player2.draw()
-        player2.collision()
-        collision_objectif(player)
-        collision_objectif(player2)
         collision_ennemi(player)
-        collision_ennemi(player2)
+        collision_objectif(player)
+        
+        if variables.nb_player == 2:
+            player2.draw()
+            player2.collision()
+            collision_objectif(player2)
+            collision_ennemi(player2)
+            
         if variables.nb_player == 2:
             keys=pygame.key.get_pressed()
             if keys[K_q]:
@@ -240,7 +244,7 @@ def launch_game():
     variables.taille_vaisseau = 20
     pygame.init()
     pygame.display.init()
-    pygame.display.set_caption('Hello World!')
+    pygame.display.set_caption('Galaxy War')
     variables.fenetre = pygame.display.set_mode(variables.ecran)
     real_game()
 

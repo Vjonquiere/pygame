@@ -2,7 +2,7 @@ import pygame, sys, time
 from pygame.locals import *
 from random import randint
 import variables
-from pygame import overlay
+
 
 
 
@@ -112,7 +112,7 @@ class Outils:
         variables.liste_objectifs.clear()
 
         while True:
-            back = pygame.transform.scale(pygame.image.load('back.jpg'), (720,480))
+            back = pygame.transform.scale(pygame.image.load('images/back.jpg'), (720,480))
             variables.fenetre.blit(back, (0, 0))
             variables.fenetre.blit(self.quit_message, (145, 435))
             variables.fenetre.blit(self.replay_message, (175, 400)) 
@@ -120,12 +120,12 @@ class Outils:
             if variables.win :
                 message = self.font1.render("You Win", 1, (255,255,0))
                 variables.fenetre.blit(message, (270, 100))
-                icon = pygame.transform.scale(pygame.image.load('icons8-trophy-64.png'), (75,75))
+                icon = pygame.transform.scale(pygame.image.load('images/trophy.png'), (75,75))
                 variables.fenetre.blit(icon, (320, 190))
             else:
                 message = self.font1.render("You Lose", 1, (255,255,0))
                 variables.fenetre.blit(message, (270, 100))
-                icon = pygame.transform.scale(pygame.image.load('icons8-sad-64.png'), (75,75))
+                icon = pygame.transform.scale(pygame.image.load('images/sad.png'), (75,75))
                 variables.fenetre.blit(icon, (320, 190))
              
             keys=pygame.key.get_pressed()
